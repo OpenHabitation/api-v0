@@ -1,0 +1,12 @@
+# SECRETS
+.env
+
+# python virtual environment
+.venv
+
+# .csv files
+*.csv
+
+# python cache stuff
+__pycache__
+*.ipynb_checkpoints
