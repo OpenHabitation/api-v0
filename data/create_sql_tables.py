@@ -30,9 +30,9 @@ engine = sqlalchemy.create_engine(DATABASE_URL_SQLALCHEMY)
 
 
 download_paths = {
-    "electricityProduction_TABLE.csv": os.environ('ELECTRICITY_PRODUCTION_TABLE_URL'),
-    "gwr_TABLE.csv": os.environ('GWR_TABLE_URL'),
-    "heatingInfo_TABLE.csv": os.environ('HEATING_INFO_TABLE_URL')
+    "electricityProduction_TABLE.csv": os.getenv('ELECTRICITY_PRODUCTION_TABLE_URL'),
+    "gwr_TABLE.csv": os.getenv('GWR_TABLE_URL'),
+    "heatingInfo_TABLE.csv": os.getenv('HEATING_INFO_TABLE_URL')
 }
 
 filenames = {"electricityProduction_TABLE.csv":"electricity_production", "gwr_TABLE.csv":"gwr", "heatingInfo_TABLE.csv":"heating_info"}
@@ -41,12 +41,12 @@ filenames = {"electricityProduction_TABLE.csv":"electricity_production", "gwr_TA
 for filename, table_name in filenames.items():
 
     print("Downloading '%s'..." %filename)
-    chunks = pd.read_csv(download_paths[filename], index_col=0, chunksize=30000)
+    chunks = pd.read_csv(download_paths[filename], index_col=0, chunksize=10000)
     print("Writing to table %s..." %table_name)
     counter = 0
     for df in chunks:
         try:
-            df.to_sql(table_name, engine, if_exists="fail", chunksize=10000)
+            df.to_sql(table_name, engine, if_exists="fail", chunksize=5000)
             print("Writing chunk %s" %counter)
             counter += 1
 
