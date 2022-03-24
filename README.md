@@ -1,6 +1,6 @@
 # OpenHabitation API - v0
 
-This is a project started at the [Energy Data Hackdays 2021](https://energydatahackdays.ch/) ([project page](https://hack.opendata.ch/project/779)).
+This is a project that started at the [Energy Data Hackdays 2021](https://energydatahackdays.ch/) ([project page](https://hack.opendata.ch/project/779)).
 
 
 See here for a DEMO and other information: https://www.openhabitation.org
