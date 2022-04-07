@@ -68,7 +68,7 @@ def get_house_info(connection, address, angle=35, aspect=60):
         response_dict["installations"]["electricity_production"].append(plant_dict)
 
     # search space_heating info
-    cursor.execute("select \"HeatingType\", \"ConstructionYear\" from heating_info where \"EGID\"=%s and \"InstallationType\"='SH'", (egid, ))
+    cursor.execute("SELECT \"HeatingType\", \"ConstructionYear\" FROM heating_info where \"EGID\"=%s AND (\"InstallationType\"='SH' OR \"InstallationType\"='combined')", (egid, ))
     space_heating = cursor.fetchall()
     # print("HEATING RESULT: ", space_heating)
     for heating in space_heating:
@@ -76,7 +76,7 @@ def get_house_info(connection, address, angle=35, aspect=60):
         response_dict["installations"]["space_heating"].append(space_heating_dict)
 
     # search hotwater info
-    cursor.execute("select \"HeatingType\", \"ConstructionYear\" from heating_info where \"EGID\"=%s and \"InstallationType\"='DHW'", (egid, ))
+    cursor.execute("SELECT \"HeatingType\", \"ConstructionYear\" FROM heating_info WHERE \"EGID\"=%s AND (\"InstallationType\"='DHW' OR \"InstallationType\"='combined')", (egid, ))
     hot_water = cursor.fetchall()
     # print("HOTWATER RESULT: ", hot_water)
     for heating in hot_water:
