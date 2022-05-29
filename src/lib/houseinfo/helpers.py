@@ -1,6 +1,18 @@
 import requests
 
 
+COORDINATES_SOURCE = "Bundesamt für Statistik, Eidg. Gebäude- und Wohnungsregister GWR, https://opendata.swiss/de/dataset/eidg-gebaude-und-wohnungsregister-gwr"
+ANNUAL_PRODUCTION_SOURCE = "Bundesamt für Energie BFE Schweiz, Elektrizitätsproduktionsanlagen, https://opendata.swiss/de/dataset/elektrizitatsproduktionsanlagen ***modified***; European Union, PHOTOVOLTAIC GEOGRAPHICAL INFORMATION SYSTEM PVGIS (Tool), https://re.jrc.ec.europa.eu/pvg_tools/en/ ***modified***"
+SPACE_HEATING_SOURCE = "Département du territoire DT canton Genève, CADASTRE DES INSTALLATIONS DE COMBUSTION STATIONNAIRES - CHAUDIERES, https://ge.ch/sitg/fiche/7502"
+DOMESTIC_HOT_WATER_SOURCE = "Département du territoire DT canton Genève, CADASTRE DES INSTALLATIONS DE COMBUSTION STATIONNAIRES - CHAUDIERES, https://ge.ch/sitg/fiche/7502"
+SPACE_HEATING_DEMAND_KWH_SOURCE = "Bundesamt für Energie BFE Schweiz, Eignung von Hausdächern für die Nutzung von Sonnenenergie, https://opendata.swiss/de/dataset/eignung-von-hausdachern-fur-die-nutzung-von-sonnenenergie"
+DOMESTIC_HOT_WATER_DEMAND_KWH_SOURCE = "Bundesamt für Energie BFE Schweiz, Eignung von Hausdächern für die Nutzung von Sonnenenergie, https://opendata.swiss/de/dataset/eignung-von-hausdachern-fur-die-nutzung-von-sonnenenergie"
+ELECTRICITY_PRODUCTION_SOURCE = "Bundesamt für Energie BFE Schweiz, Elektrizitätsproduktionsanlagen, https://opendata.swiss/de/dataset/elektrizitatsproduktionsanlagen"
+GENEVE_SOURCE = "Département du territoire DT canton Genève, CADASTRE DES INSTALLATIONS DE COMBUSTION STATIONNAIRES - CHAUDIERES, https://ge.ch/sitg/fiche/7502"
+
+
+
+
 # ---------------------------------------------
 # FROM DATABASE
 
@@ -52,6 +64,7 @@ def get_house_info(connection, address, angle=35, aspect=60):
 
     response_dict["coordinates"]["lat"] = lat
     response_dict["coordinates"]["lon"] = lon
+    response_dict["coordinates"]["source"] = COORDINATES_SOURCE
 
     # search production plant info
     cursor.execute("select \"TotalPower\", \"PlantType\", \"MountingPlace\", \"BeginningOfOperation\" from electricity_production where \"EGID\"=%s", (egid, ))
@@ -64,7 +77,7 @@ def get_house_info(connection, address, angle=35, aspect=60):
             mountingplace_query="free"
         total_power = plant[0]
         estimated_annual_production = get_pv_gis_data(lat, lon, total_power, None, mountingplace_query, angle, aspect)
-        plant_dict = {"plant_type":plant[1], "total_power":total_power, "mountingplace":mountingplace, "estimated_annual_production_kWh": estimated_annual_production, "beginning_of_operation":plant[3]}
+        plant_dict = {"plant_type":plant[1], "total_power":total_power, "mountingplace":mountingplace, "estimated_annual_production_kWh": estimated_annual_production, "beginning_of_operation":plant[3], "source": ELECTRICITY_PRODUCTION_SOURCE}
         response_dict["installations"]["electricity_production"].append(plant_dict)
 
     # search space_heating info
@@ -72,7 +85,7 @@ def get_house_info(connection, address, angle=35, aspect=60):
     space_heating = cursor.fetchall()
     # print("HEATING RESULT: ", space_heating)
     for heating in space_heating:
-        space_heating_dict = {"heating_type":heating[0], "construction_year":heating[1]}
+        space_heating_dict = {"heating_type":heating[0], "construction_year":heating[1], "source":GENEVE_SOURCE}
         response_dict["installations"]["space_heating"].append(space_heating_dict)
 
     # search hotwater info
@@ -80,7 +93,7 @@ def get_house_info(connection, address, angle=35, aspect=60):
     hot_water = cursor.fetchall()
     # print("HOTWATER RESULT: ", hot_water)
     for heating in hot_water:
-        hot_water_dict = {"heating_type":heating[0], "construction_year":heating[1]}
+        hot_water_dict = {"heating_type":heating[0], "construction_year":heating[1], "source":GENEVE_SOURCE}
         response_dict["installations"]["domestic_hot_water"].append(hot_water_dict)
 
     summary = get_summary(response_dict)
@@ -94,7 +107,10 @@ def get_house_info(connection, address, angle=35, aspect=60):
         domestic_hot_water_demand = "unknown or zero"
 
     response_dict["summary"]["space_heating_demand_kWh"] = space_heating_demand
+    response_dict["summary"]["space_heating_demand_kWh_source"] = SPACE_HEATING_DEMAND_KWH_SOURCE
     response_dict["summary"]["domestic_hot_water_demand_kWh"] = domestic_hot_water_demand
+    response_dict["summary"]["domestic_hot_water_demand_kWh_source"] = DOMESTIC_HOT_WATER_DEMAND_KWH_SOURCE
+
 
     return response_dict
 
@@ -127,6 +143,8 @@ def get_summary(response_dict):
         summary["estimated_annual_total_production_kWh"] = total_production_kWh
     else:
         summary["estimated_annual_total_production_kWh"] = None
+
+    summary["estimated_annual_total_production_kWh_source"] = ANNUAL_PRODUCTION_SOURCE
 
     # classify space-heating
     space_heatings = response_dict["installations"]["space_heating"]
