@@ -27,14 +27,14 @@ if True: # make code collapsable
 
 
 
-app = application = falcon.App()
+# app = application = falcon.App()
 
-# Enable a simple CORS policy for all responses
-app = falcon.App(cors_enable=True)
+# # Enable a simple CORS policy for all responses
+# app = falcon.App(cors_enable=True)
 
 # Enable CORS policy for example.com and allows credentials
-app = falcon.App(middleware=falcon.CORSMiddleware(
-    allow_origins='test.openhabitation.org', allow_credentials='*'))
+app = application = falcon.App(middleware=falcon.CORSMiddleware(
+    allow_origins=['https://test.openhabitation.org', 'https://www.openhabitation.org'], allow_credentials='*'))
 
 
 AddressSearchResource = AddressSearch(connection)
