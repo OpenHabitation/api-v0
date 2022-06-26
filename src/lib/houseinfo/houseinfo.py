@@ -4,7 +4,7 @@ from falcon import media
 import json
 import functools
 
-import lib.houseinfo.helpers as hl
+import lib.assemblers as assemblers
 
 # https://falcon.readthedocs.io/en/stable/user/recipes/pretty-json.html
 json_handler = media.JSONHandler(
@@ -80,7 +80,7 @@ class HouseInfo():
         except KeyError:
             aspect = None
 
-        output = hl.get_house_info(self.connection, address, angle, aspect)
+        output = assemblers.get_house_info(self.connection, address, angle, aspect)
 
         if output==None:
             resp.status = falcon.HTTP_404

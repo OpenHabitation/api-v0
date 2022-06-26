@@ -1,6 +1,8 @@
 import requests
 import xmltodict
-import constants
+import json
+
+import lib.constants as constants
 
 
 class NoDataFoundError(Exception): pass
@@ -82,7 +84,8 @@ def get_electricity_production_info(connection, coordinates):
 	query_result = cursor.fetchall()
 
 	if len(query_result)==0:
-		raise NoDataFoundError("No data found for the given address.")
+		print("No data found for the given address.")
+		return []
 
 	response = []
 
@@ -158,7 +161,7 @@ def add_pv_gis_data(coordinates, plants, angle=35, aspect=60):
 			else:
 				mounting_place_query = "free"
 
-			estimated_annual_production = get_pv_gis_data(lat, lon, plant["total_power"], None, mounting_place_query, angle, aspect)
+			estimated_annual_production = get_pv_gis_data_single(lat, lon, plant["total_power"], None, mounting_place_query, angle, aspect)
 			response.append(
 				{
 					"plant_type": plant["plant_type"],
@@ -247,29 +250,112 @@ sr=2056"
 #####################################################
 
 def get_heating_info(egid):
+	"""Getting heating info from BFS MADD API
+
+	Parameters
+	----------
+	egid : str
+			EGID number
+
+	Returns
+	-------
+	[dict, dict]
+			space heating info and hot water info
+	"""
+
+	space_heating = {}
+	domestic_hot_water = {}
+
 
 	url = "https://madd.bfs.admin.ch/eCH-0206?egid={}".format(egid)
 	api_response = requests.get(url)
+
 
 	try:
 		api_response = xmltodict.parse(api_response.text)
 	except Exception as e:
 		print("Parsing of MADD response failed: ", e)
 
-	heating_device_1 = api_response["maddResponse"]['buildingList']["buildingItem"]["building"]["thermotechnicalDeviceForHeating1"]
-	heating_device_2 = api_response["maddResponse"]['buildingList']["buildingItem"]["building"]["thermotechnicalDeviceForHeating2"]
 
-	hotwater_device_1 = api_response["maddResponse"]['buildingList']["buildingItem"]["building"]['thermotechnicalDeviceForWarmWater1']
-	hotwater_device_2 = api_response["maddResponse"]['buildingList']["buildingItem"]["building"]['thermotechnicalDeviceForWarmWater2']
+	# HEATING
+	try:
+		heating_device_1 = api_response["maddResponse"]['buildingList']["buildingItem"]["building"]["thermotechnicalDeviceForHeating1"]
+		space_heating["main_device"] = {
+			"heat_generator": constants.HEATING_CODES_EN[heating_device_1["heatGeneratorHeating"]],
+			"energy_source": constants.HEATING_CODES_EN[heating_device_1["energySourceHeating"]],
+			"information_source": constants.HEATING_CODES_EN[heating_device_1["informationSourceHeating"]],
+			"information_last_updated": heating_device_1["revisionDate"]
+		}
+	except Exception as e:
+		print("Error when trying to extract information of heating device 1: ", e)
+
+	try:
+		heating_device_2 = api_response["maddResponse"]['buildingList']["buildingItem"]["building"]["thermotechnicalDeviceForHeating2"]
+		if heating_device_2["heatGeneratorHeating"] != "7400":
+			space_heating["secondary_device"] = {
+				"heat_generator": constants.HEATING_CODES_EN[heating_device_2["heatGeneratorHeating"]],
+				"energy_source": constants.HEATING_CODES_EN[heating_device_2["energySourceHeating"]],
+				"information_source": constants.HEATING_CODES_EN[heating_device_2["informationSourceHeating"]],
+				"information_last_updated": heating_device_2["revisionDate"]
+			}
+	except Exception as e:
+		pass
+
+	# HOT WATER
+	try:
+		hot_water_device_1 = api_response["maddResponse"]['buildingList']["buildingItem"]["building"]["thermotechnicalDeviceForWarmWater1"]
+		domestic_hot_water["main_device"] = {
+			"heat_generator": constants.HEATING_CODES_EN[hot_water_device_1["heatGeneratorHotWater"]],
+			"energy_source": constants.HEATING_CODES_EN[hot_water_device_1["energySourceHeating"]],
+			"information_source": constants.HEATING_CODES_EN[hot_water_device_1["informationSourceHeating"]],
+			"information_last_updated": hot_water_device_1["revisionDate"]
+		}
+	except Exception as e:
+		print("Error when trying to extract information of hotwater device 1: ", e)
+
+	try:
+		hot_water_device_2 = api_response["maddResponse"]['buildingList']["buildingItem"]["building"]["thermotechnicalDeviceForWarmWater2"]
+		if heating_device_2["heatGeneratorHeating"] != "7600":
+			domestic_hot_water["secondary_device"] = {
+				"heat_generator": constants.HEATING_CODES_EN[hot_water_device_2["heatGeneratorHotWater"]],
+				"energy_source": constants.HEATING_CODES_EN[hot_water_device_2["energySourceHeating"]],
+				"information_source": constants.HEATING_CODES_EN[hot_water_device_2["informationSourceHeating"]],
+				"information_last_updated": hot_water_device_2["revisionDate"]
+			}
+	except Exception as e:
+		pass
+
+	return space_heating, domestic_hot_water
 
 
 
-	#TODO improve logic here...
+
+
+#####################################################
+# Electricity production info from API
+#####################################################
+
+# Not in use currently
+def get_electricity_production_info_remote(street, nr=None, zipcode=None, city=None):
+
+    search_input = [street]
+
+    if nr != None:
+        search_input.append(str(nr))
+    if zipcode != None:
+        search_input.append(str(zipcode))
+    if city != None:
+        search_input.append(city)
+
+    searchText = " ".join(search_input)
+    print(searchText)
+    url = "https://api3.geo.admin.ch/rest/services/api/MapServer/find?layer=ch.bfe.elektrizitaetsproduktionsanlagen&searchText=%s&searchField=address&contains=true" % (searchText)
+
+    return requests.get(url)
 
 
 
-# TODO add error handling in main function
 
 
-
-
+if __name__=="__main__":
+	pass
