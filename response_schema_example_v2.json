@@ -1,0 +1,41 @@
+{
+    "address": "Dummystreet 12, 1234 Exampletown",
+    "coordinates": {
+        "lat": 46.18227902730686,
+        "lon": 6.104091759304464
+    },
+    "summary": {
+        "estimated_annual_electricity_production_kWh": 2345,
+        "space_heating": "non-renewable",
+        "domestic_hot_water": "non-renewable",
+        "space_heating_demand_kWh":12345,
+        "domestic_hot_water_demand_kWh":1234
+    },
+    "installations": {
+        "electricity_production": [
+            {
+                "plant_type": "PV",
+                "total_power": 3.6,
+                "mountingplace": "free",
+                "estimated_annual_production": 3956.06,
+                "beginning_of_operation": "2017-01-13"
+            }
+        ],
+        "space_heating": [
+            {
+                "generator_type": "boiler (generic)",
+                "energy_source": "gas",
+                "information_source": "Gemäss Volkszählung 2000",
+                "last_updated": "2001-11-29"
+            }
+        ],
+        "domestic_hot_water": [
+            {
+                "generator_type": "boiler (generic)",
+                "energy_source": "gas",
+                "information_source": "Gemäss Volkszählung 2000",
+                "last_updated": "2001-11-29"
+            }
+        ]
+    }
+}
