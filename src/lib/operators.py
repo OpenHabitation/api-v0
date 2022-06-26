@@ -1,3 +1,14 @@
+import lib.constants as constants
+
+
+RENEWABLE_LIST = get_string_list([7410, 7411, 7420, 7421, 7501, 7510, 7511, 7512, 7513, 7540, 7541, 7542, 7543, 7550, 7570, 7580, 7581, 7582, 7610, 7620])
+NO_SYSTEM_REGISTERED_LIST = get_string_list([7400, 7500, 7600])
+UNKNOWN_LIST = get_string_list([7430, 7431, 7432, 7433, 7434, 7435, 7436, 7440, 7441, 7460, 7461, 7499, 7598, 7599, 7630, 7632, 7634, 7640, 7660, 7699])
+INEFFICIENT_LIST = get_string_list([7450, 7451, 7452, 7560, 7650, 7651])
+
+
+def get_string_list(code_list):
+  return [constants.HEATING_CODES_EN[code] for code in code_list]
 
 
 
