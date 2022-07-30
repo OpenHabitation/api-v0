@@ -1,6 +1,20 @@
 from typing import Union
 
 
+COORDINATES_SOURCE = "Bundesamt für Statistik, Eidg. Gebäude- und Wohnungsregister GWR, https://opendata.swiss/de/dataset/eidg-gebaude-und-wohnungsregister-gwr"
+
+ANNUAL_PRODUCTION_SOURCE = "Calculated based on 'Bundesamt für Energie BFE Schweiz, Elektrizitätsproduktionsanlagen, https://opendata.swiss/de/dataset/elektrizitatsproduktionsanlagen' and 'European Union, Photovoltaic Geographical Information System PVGIS, https://re.jrc.ec.europa.eu/pvg_tools/en/'"
+
+SPACE_HEATING_SOURCE = "Bundesamt für Statistik, Eidg. Gebäude- und Wohnungsregister GWR, https://opendata.swiss/de/dataset/eidg-gebaude-und-wohnungsregister-gwr"
+DOMESTIC_HOT_WATER_SOURCE = "Bundesamt für Statistik, Eidg. Gebäude- und Wohnungsregister GWR, https://opendata.swiss/de/dataset/eidg-gebaude-und-wohnungsregister-gwr"
+
+SPACE_HEATING_DEMAND_KWH_SOURCE = "Bundesamt für Energie BFE Schweiz, Eignung von Hausdächern für die Nutzung von Sonnenenergie, https://opendata.swiss/de/dataset/eignung-von-hausdachern-fur-die-nutzung-von-sonnenenergie"
+DOMESTIC_HOT_WATER_DEMAND_KWH_SOURCE = "Bundesamt für Energie BFE Schweiz, Eignung von Hausdächern für die Nutzung von Sonnenenergie, https://opendata.swiss/de/dataset/eignung-von-hausdachern-fur-die-nutzung-von-sonnenenergie"
+
+ELECTRICITY_PRODUCTION_SOURCE = "Bundesamt für Energie BFE Schweiz, Elektrizitätsproduktionsanlagen, https://opendata.swiss/de/dataset/elektrizitatsproduktionsanlagen"
+
+
+
 
 class Coordinates():
   def __init__(self, egid, lat, lon, gkode, gkodn):
