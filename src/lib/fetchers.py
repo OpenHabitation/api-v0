@@ -1,6 +1,7 @@
 import requests
 import xmltodict
 import json
+from typing import List, Union
 
 import lib.constants as constants
 from lib.types import *
@@ -61,7 +62,7 @@ def get_coordinates(connection, address):
 
 
 
-def get_electricity_production_info(connection, coordinates: Coordinates) -> list[PlantInfo]:
+def get_electricity_production_info(connection, coordinates: Coordinates) -> List[PlantInfo]:
 	"""Gets electricity production info from local database
 	for the given address
 
@@ -110,7 +111,7 @@ def get_electricity_production_info(connection, coordinates: Coordinates) -> lis
 # PV GIS API (https://re.jrc.ec.europa.eu/api/PVcalc)
 #####################################################
 
-def get_pv_gis_data_single(lat, lon, peakpower, loss, mountingplace, angle, aspect) -> int | float | None:
+def get_pv_gis_data_single(lat, lon, peakpower, loss, mountingplace, angle, aspect) -> Union[int, float, None]:
 
 	# loss: float between 0 and 100
 	# mountingplace can be one of ["free", "building"]
@@ -148,7 +149,7 @@ def get_pv_gis_data_single(lat, lon, peakpower, loss, mountingplace, angle, aspe
 		print("Error while trying to get PV GIS data: ", e)
 		return None
 
-def add_pv_gis_data(coordinates: Coordinates, plants: list[PlantInfo], angle=35, aspect=60) -> list[PlantInfo]:
+def add_pv_gis_data(coordinates: Coordinates, plants: list[PlantInfo], angle=35, aspect=60) -> List[PlantInfo]:
 
 	lat = coordinates.lat
 	lon = coordinates.lon
