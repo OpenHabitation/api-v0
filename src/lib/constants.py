@@ -77,6 +77,8 @@ HEATING_CODES_EN = {
 
 }
 
+
+
 HEATING_CODES_DE = {
 
 # heating generator heating
@@ -139,3 +141,8 @@ HEATING_CODES_DE = {
 "871": "Gemäss Minergie"
 
 }
+
+
+
+if __name__=="__main__":
+  pass

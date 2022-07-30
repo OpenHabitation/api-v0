@@ -3,6 +3,7 @@ import xmltodict
 import json
 
 import lib.constants as constants
+from lib.types import *
 
 
 class NoDataFoundError(Exception): pass
@@ -25,8 +26,8 @@ def get_coordinates(connection, address):
 
 	Returns
 	-------
-	dict
-		dictionary containing the EGID as well as the coordinates for the corresponding
+	Coordinates
+		Coordinates class containing the EGID as well as the coordinates for the corresponding
 		address
 
 	Raises
@@ -43,17 +44,24 @@ def get_coordinates(connection, address):
 	if len(query_result)==0:
 		raise NoDataFoundError("No data found for the given address.")
 
-	return {
-		"EGID": query_result[0][0],
-		"lat": query_result[0][1],
-		"lon": query_result[0][2],
-		"GKODE": query_result[0][3],
-		"GKODN": query_result[0][4]
-	}
+	return Coordinates(
+		query_result[0][0],
+		query_result[0][1],
+		query_result[0][2],
+		query_result[0][3],
+		query_result[0][4],
+	)
+	# return {
+	# 	"EGID": query_result[0][0],
+	# 	"lat": query_result[0][1],
+	# 	"lon": query_result[0][2],
+	# 	"GKODE": query_result[0][3],
+	# 	"GKODN": query_result[0][4]
+	# }
 
 
 
-def get_electricity_production_info(connection, coordinates):
+def get_electricity_production_info(connection, coordinates: Coordinates) -> list[PlantInfo]:
 	"""Gets electricity production info from local database
 	for the given address
 
@@ -66,8 +74,8 @@ def get_electricity_production_info(connection, coordinates):
 
 	Returns
 	-------
-	dict
-		dictionary containing information about electricity production
+	list[PlantInfo]
+		list of PlantInfo containing information about electricity production
 		for the given address
 
 	Raises
@@ -76,7 +84,7 @@ def get_electricity_production_info(connection, coordinates):
 		raised in case no data was found for this address in the database
 	"""
 
-	egid = coordinates["EGID"]
+	egid = coordinates.EGID
 
 	# fetch the production info
 	cursor = connection.cursor()
@@ -91,12 +99,7 @@ def get_electricity_production_info(connection, coordinates):
 
 	for plant in query_result:
 		response.append(
-			{
-					"total_power": plant[0],
-					"plant_type": plant[1],
-					"mountingplace": plant[2],
-					"beginning_of_operation": plant[3]
-			}
+			PlantInfo(plant[0], plant[1], plant[2], plant[3])
 		)
 
 	return response
@@ -107,7 +110,7 @@ def get_electricity_production_info(connection, coordinates):
 # PV GIS API (https://re.jrc.ec.europa.eu/api/PVcalc)
 #####################################################
 
-def get_pv_gis_data_single(lat, lon, peakpower, loss, mountingplace, angle, aspect):
+def get_pv_gis_data_single(lat, lon, peakpower, loss, mountingplace, angle, aspect) -> int | float | None:
 
 	# loss: float between 0 and 100
 	# mountingplace can be one of ["free", "building"]
@@ -145,35 +148,27 @@ def get_pv_gis_data_single(lat, lon, peakpower, loss, mountingplace, angle, aspe
 		print("Error while trying to get PV GIS data: ", e)
 		return None
 
-def add_pv_gis_data(coordinates, plants, angle=35, aspect=60):
+def add_pv_gis_data(coordinates: Coordinates, plants: list[PlantInfo], angle=35, aspect=60) -> list[PlantInfo]:
 
-	lat = coordinates["lat"]
-	lon = coordinates["lon"]
+	lat = coordinates.lat
+	lon = coordinates.lon
 
 	response = []
 
 	for plant in plants:
 
-		if plant["plant_type"]=="PV":
+		if plant.plant_type=="PV":
 
-			if plant["mountingplace"]=="integrated":
+			if plant.mountingplace=="integrated":
 				mounting_place_query = "building"
 			else:
 				mounting_place_query = "free"
 
-			estimated_annual_production = get_pv_gis_data_single(lat, lon, plant["total_power"], None, mounting_place_query, angle, aspect)
-			response.append(
-				{
-					"plant_type": plant["plant_type"],
-					"total_power": plant["total_power"],
-					"mountingplace": plant["mountingplace"],
-					"estimated_annual_production_kWh": estimated_annual_production,
-					"beginning_of_operation": plant["beginning_of_operation"]
-				}
-			)
+			estimated_annual_production = get_pv_gis_data_single(lat, lon, plant.total_power, None, mounting_place_query, angle, aspect)
+			plant.estimated_annual_production_kWh = estimated_annual_production # set estimated_annual_production
 
-		else:
-			response.append(plant)
+
+		response.append(plant)
 
 	return response
 
@@ -184,7 +179,8 @@ def add_pv_gis_data(coordinates, plants, angle=35, aspect=60):
 # Sonnendach API / SH & DHW demand
 #####################################################
 
-def get_heating_demands(gkode, gkodn):
+
+def get_heating_demands(gkode, gkodn) -> (SpaceHeatingDemand, DomesticHotWaterDemand):
     """
     Fetching space heating and hotwater demand from sonnandach API (https://github.com/SFOE/geo-api-documentation)
 
@@ -249,7 +245,7 @@ sr=2056"
 # MADD BFS API / SH & DHW devices and energy sources
 #####################################################
 
-def get_heating_info(egid):
+def get_heating_info(egid: str) -> (SpaceHeatingInfo, DomesticHotWaterInfo):
 	"""Getting heating info from BFS MADD API
 
 	Parameters
@@ -259,12 +255,12 @@ def get_heating_info(egid):
 
 	Returns
 	-------
-	[dict, dict]
+	[SpaceHeatingInfo, DomesticHotWaterInfo]
 			space heating info and hot water info
 	"""
 
-	space_heating = {}
-	domestic_hot_water = {}
+	space_heating = SpaceHeatingInfo()
+	domestic_hot_water = DomesticHotWaterInfo()
 
 
 	url = "https://madd.bfs.admin.ch/eCH-0206?egid={}".format(egid)
@@ -280,53 +276,52 @@ def get_heating_info(egid):
 	# HEATING
 	try:
 		heating_device_1 = api_response["maddResponse"]['buildingList']["buildingItem"]["building"]["thermotechnicalDeviceForHeating1"]
-		space_heating["main_device"] = {
-			"heat_generator": constants.HEATING_CODES_EN[heating_device_1["heatGeneratorHeating"]],
-			"energy_source": constants.HEATING_CODES_EN[heating_device_1["energySourceHeating"]],
-			"information_source": constants.HEATING_CODES_EN[heating_device_1["informationSourceHeating"]],
-			"information_last_updated": heating_device_1["revisionDate"]
-		}
+		space_heating.main_device = HeatingDevice(
+			constants.HEATING_CODES_EN[heating_device_1["heatGeneratorHeating"]],
+			constants.HEATING_CODES_EN[heating_device_1["energySourceHeating"]],
+			constants.HEATING_CODES_EN[heating_device_1["informationSourceHeating"]],
+			heating_device_1["revisionDate"]
+		)
 	except Exception as e:
 		print("Error when trying to extract information of heating device 1: ", e)
 
 	try:
 		heating_device_2 = api_response["maddResponse"]['buildingList']["buildingItem"]["building"]["thermotechnicalDeviceForHeating2"]
 		if heating_device_2["heatGeneratorHeating"] != "7400":
-			space_heating["secondary_device"] = {
-				"heat_generator": constants.HEATING_CODES_EN[heating_device_2["heatGeneratorHeating"]],
-				"energy_source": constants.HEATING_CODES_EN[heating_device_2["energySourceHeating"]],
-				"information_source": constants.HEATING_CODES_EN[heating_device_2["informationSourceHeating"]],
-				"information_last_updated": heating_device_2["revisionDate"]
-			}
+			space_heating.secondary_device = HeatingDevice(
+				constants.HEATING_CODES_EN[heating_device_2["heatGeneratorHeating"]],
+				constants.HEATING_CODES_EN[heating_device_2["energySourceHeating"]],
+				constants.HEATING_CODES_EN[heating_device_2["informationSourceHeating"]],
+				heating_device_2["revisionDate"]
+			)
 	except Exception as e:
 		pass
 
 	# HOT WATER
 	try:
 		hot_water_device_1 = api_response["maddResponse"]['buildingList']["buildingItem"]["building"]["thermotechnicalDeviceForWarmWater1"]
-		domestic_hot_water["main_device"] = {
-			"heat_generator": constants.HEATING_CODES_EN[hot_water_device_1["heatGeneratorHotWater"]],
-			"energy_source": constants.HEATING_CODES_EN[hot_water_device_1["energySourceHeating"]],
-			"information_source": constants.HEATING_CODES_EN[hot_water_device_1["informationSourceHeating"]],
-			"information_last_updated": hot_water_device_1["revisionDate"]
-		}
+		domestic_hot_water.main_device = HeatingDevice(
+			constants.HEATING_CODES_EN[hot_water_device_1["heatGeneratorHotWater"]],
+			constants.HEATING_CODES_EN[hot_water_device_1["energySourceHeating"]],
+			constants.HEATING_CODES_EN[hot_water_device_1["informationSourceHeating"]],
+			hot_water_device_1["revisionDate"]
+		)
 	except Exception as e:
 		print("Error when trying to extract information of hotwater device 1: ", e)
 
 	try:
 		hot_water_device_2 = api_response["maddResponse"]['buildingList']["buildingItem"]["building"]["thermotechnicalDeviceForWarmWater2"]
-		if heating_device_2["heatGeneratorHeating"] != "7600":
-			domestic_hot_water["secondary_device"] = {
-				"heat_generator": constants.HEATING_CODES_EN[hot_water_device_2["heatGeneratorHotWater"]],
-				"energy_source": constants.HEATING_CODES_EN[hot_water_device_2["energySourceHeating"]],
-				"information_source": constants.HEATING_CODES_EN[hot_water_device_2["informationSourceHeating"]],
-				"information_last_updated": hot_water_device_2["revisionDate"]
-			}
+		if heating_device_2.heatGeneratorHeating != "7600":
+			domestic_hot_water.secondary_device = HeatingDevice(
+				constants.HEATING_CODES_EN[hot_water_device_2["heatGeneratorHotWater"]],
+				constants.HEATING_CODES_EN[hot_water_device_2["energySourceHeating"]],
+				constants.HEATING_CODES_EN[hot_water_device_2["informationSourceHeating"]],
+				hot_water_device_2["revisionDate"]
+			)
 	except Exception as e:
 		pass
 
 	return space_heating, domestic_hot_water
-
 
 
 

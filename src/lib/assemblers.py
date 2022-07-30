@@ -8,7 +8,7 @@ def get_summary(coordinates: dict, production_plants: dict, space_heating: dict,
 
   summary = {}
 
-  space_heating_demand, domestic_hot_water_demand = fetchers.get_heating_demands(coordinates["GKODE"], coordinates["GKODN"])
+  space_heating_demand, domestic_hot_water_demand = fetchers.get_heating_demands(coordinates.GKODE, coordinates.GKODN)
 
   return {
     "electricity_production_system": operators.electricity_production_exists(production_plants),
@@ -33,7 +33,8 @@ def get_house_info(connection, address, angle, aspect):
   el_production_info = fetchers.get_electricity_production_info(connection, coordinates)
   el_production_info_extended = fetchers.add_pv_gis_data(coordinates, el_production_info)
 
-  space_heating, domestic_hot_water = fetchers.get_heating_info(coordinates["EGID"])
+
+  space_heating, domestic_hot_water = fetchers.get_heating_info(coordinates.EGID)
   summary = get_summary(coordinates, el_production_info_extended, space_heating, domestic_hot_water)
 
   # TODO add error handling
@@ -41,16 +42,16 @@ def get_house_info(connection, address, angle, aspect):
 
   return {
     "address": address,
-    "EGID": coordinates["EGID"],
+    "EGID": coordinates.EGID,
     "coordinates": {
-      "lat": coordinates["lat"],
-      "lon": coordinates["lon"]
+      "lat": coordinates.lat,
+      "lon": coordinates.lon,
     },
     "summary": summary,
     "installations": {
-      "electricity_production": el_production_info_extended,
-      "space_heating": space_heating,
-      "domestic_hot_water": domestic_hot_water
+      "electricity_production": [plant_info.to_dict() for plant_info in el_production_info_extended],
+      "space_heating": space_heating.to_dict(),
+      "domestic_hot_water": domestic_hot_water.to_dict(),
     }
   }
 
