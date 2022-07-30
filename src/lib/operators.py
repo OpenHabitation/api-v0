@@ -1,3 +1,4 @@
+from typing import Union
 import lib.constants as constants
 from lib.types import *
 
@@ -32,7 +33,7 @@ def get_quality_from_code(code: str) -> str:
     raise UknownHeatingCodeError("Unknown heating code: %s" %code)
 
 
-def space_heating_classifier(space_heating_info: SpaceHeatingInfo) -> str | None:
+def space_heating_classifier(space_heating_info: SpaceHeatingInfo) -> Union[str, None]:
 
   # for now only main device considered
   main_device = space_heating_info.main_device
@@ -50,7 +51,7 @@ def space_heating_classifier(space_heating_info: SpaceHeatingInfo) -> str | None
   return heating_quality_energy_source
 
 
-def hot_water_classifier(hot_water_info: DomesticHotWaterInfo) -> str | None:
+def hot_water_classifier(hot_water_info: DomesticHotWaterInfo) -> Union[str, None]:
 
   # for now only main device considered
   main_device = hot_water_info.main_device
@@ -75,7 +76,7 @@ def electricity_production_exists(production_plants: list) -> str:
     return "unknown"
 
 
-def get_total_electricity_production(production_plants: list[PlantInfo]) -> float | int | None:
+def get_total_electricity_production(production_plants: list[PlantInfo]) -> Union[float, int, None]:
 
   if len(production_plants) > 0:
     total_production_kWh = 0

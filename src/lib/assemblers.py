@@ -4,7 +4,7 @@ from lib.types import *
 
 class NoDataFoundError(Exception): pass
 
-def get_summary(coordinates: dict, production_plants: dict, space_heating: dict, domestic_hot_water: dict):
+def get_summary(coordinates: dict, production_plants: dict, space_heating: dict, domestic_hot_water: dict) -> dict:
 
   summary = {}
 

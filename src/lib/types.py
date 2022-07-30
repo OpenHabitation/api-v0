@@ -58,8 +58,8 @@ class PlantInfo():
 
 
 
-SpaceHeatingDemand = int | float | None
-DomesticHotWaterDemand = int | float | None
+SpaceHeatingDemand = Union[int, float, None]
+DomesticHotWaterDemand = Union[int, float, None]
 
 
 
