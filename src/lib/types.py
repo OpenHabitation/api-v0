@@ -55,11 +55,7 @@ class PlantInfo():
     }
 
 
-class PlantInfoList():
-  def __init__(self, plant_info_list: list[PlantInfo]):
-    self.plant_info_list = plant_info_list
-  def to_dict(self):
-    return [info.to_dict() for info in self.plant_info_list]
+
 
 
 SpaceHeatingDemand = int | float | None
