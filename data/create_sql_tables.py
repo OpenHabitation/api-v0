@@ -35,8 +35,8 @@ download_paths = {
     "heatingInfo_TABLE.csv": os.getenv('HEATING_INFO_TABLE_URL')
 }
 
-# filenames = {"electricityProduction_TABLE.csv":"electricity_production", "gwr_TABLE.csv":"gwr", "heatingInfo_TABLE.csv":"heating_info"}
-filenames = {"heatingInfo_TABLE.csv":"heating_info"}
+filenames = {"electricityProduction_TABLE.csv":"electricity_production", "gwr_TABLE.csv":"gwr", "heatingInfo_TABLE.csv":"heating_info"}
+# filenames = {"heatingInfo_TABLE.csv":"heating_info"}
 
 
 for filename, table_name in filenames.items():
