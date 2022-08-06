@@ -41,6 +41,11 @@ filenames = {"electricityProduction_TABLE.csv":"electricity_production", "gwr_TA
 
 for filename, table_name in filenames.items():
 
+    # check whether database exists already:
+    if sqlalchemy.inspect(engine).has_table(table_name) == True:
+        print("Table %s already exists and is therefore skipped." %table_name)
+        continue
+
     print("Downloading '%s'..." %filename)
     chunks = pd.read_csv(download_paths[filename], index_col=0, chunksize=10000)
     print("Writing to table %s..." %table_name)
