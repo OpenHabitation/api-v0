@@ -21,5 +21,14 @@ RUN pip install -r ./requirements.txt
 RUN pip install pandas
 RUN pip install sqlalchemy
 
+
+# populate database
+# RUN python3 data/create_sql_tables.py
+
+# start api server
+# RUN cd src
+# RUN gunicorn api:app
+
+
 # run with -it flag
 CMD "/bin/bash"

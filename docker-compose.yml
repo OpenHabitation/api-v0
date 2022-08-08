@@ -21,6 +21,10 @@ services:
     container_name: openhabitation-api
     tty: true # docker run -d
     stdin_open: true # docker run -i
+    command: bash -c "
+      python3 data/create_sql_tables.py &&
+      cd src &&
+      python3 api.py"
     networks:
       - default
     environment:
