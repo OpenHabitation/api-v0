@@ -2,6 +2,8 @@ import lib.fetchers as fetchers
 import lib.operators as operators
 from lib.types import *
 
+import test_1.ttt
+
 class NoDataFoundError(Exception): pass
 
 def get_summary(coordinates: dict, production_plants: dict, space_heating: dict, domestic_hot_water: dict) -> dict:
@@ -21,7 +23,7 @@ def get_summary(coordinates: dict, production_plants: dict, space_heating: dict,
     },
     "space_heating": {
       "value": operators.space_heating_classifier(space_heating),
-      "source": "EcoHabitas",
+      "source": "EcoHabitas"
     },
     "domestic_hot_water": {
       "value": operators.hot_water_classifier(domestic_hot_water),
@@ -48,6 +50,7 @@ def get_house_info(connection, address, angle, aspect):
     return None
 
 
+
   el_production_info = fetchers.get_electricity_production_info(connection, coordinates)
   el_production_info_extended = fetchers.add_pv_gis_data(coordinates, el_production_info)
 
@@ -64,6 +67,8 @@ def get_house_info(connection, address, angle, aspect):
     "coordinates": {
       "lat": coordinates.lat,
       "lon": coordinates.lon,
+      "GKODN": coordinates.GKODN,
+      "GKODE": coordinates.GKODE,
       "source": COORDINATES_SOURCE,
     },
     "summary": summary,
@@ -84,7 +89,16 @@ def get_house_info(connection, address, angle, aspect):
     }
 
 
+"""
 
+pv_requirement
+energy_reference_area
+pv_index_1
+pv_index_2
+space_heating_index_1
+domestic_hot_water_index_1
+
+"""
 
 
 
