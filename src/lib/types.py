@@ -37,6 +37,37 @@ class Coordinates():
 
 
 
+class GWRInfo():
+  def __init__(self, egid, lat, lon, gkode, gkodn, gbauj, gbaup, gebf, garea, gastw):
+    self.EGID = egid
+    self.lat = lat
+    self.lon = lon
+    self.GKODE = gkode
+    self.GKODN = gkodn
+    self.GBAUJ = gbauj
+    self.GBAUP = gbaup
+    self.GEBF = gebf
+    self.GAREA = garea
+    self.GASTW = gastw
+
+  def to_dict(self):
+    return {
+      "EGID": self.EGID,
+      "lat": self.lat,
+      "lon": self.lon,
+      "GKODE": self.GKODE,
+      "GKODN": self.GKODN,
+      "GBAUJ": self.GBAUJ,
+      "GBAUP": self.GBAUP,
+      "GEBF": self.GEBF,
+      "GAREA": self.GAREA,
+      "GASTW": self.GASTW,
+    }
+
+
+
+
+
 class PlantInfo():
   def __init__(self, total_power, plant_type, mountingplace, beginning_of_operation, estimated_annual_production_kWh=None):
     self.total_power = total_power
@@ -107,3 +138,6 @@ class DomesticHotWaterInfo():
       "main_device": None if self.main_device == None else self.main_device.to_dict(),
       "secondary_device": None if self.secondary_device == None else self.secondary_device.to_dict(),
     }
+
+
+

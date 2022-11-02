@@ -51,6 +51,8 @@ if __name__ == '__main__':
 
     from wsgiref.simple_server import make_server
 
-    with make_server('', 8000, application) as httpd:
-        print('Serving on http://localhost:8000')
+    port = int(os.getenv("API_PORT"))
+
+    with make_server('', port, application) as httpd:
+        print('Serving on http://localhost:%s' %port)
         httpd.serve_forever()

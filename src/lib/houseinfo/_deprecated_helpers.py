@@ -49,7 +49,7 @@ def get_house_info(connection, address, angle=35, aspect=60):
 
     # extract EGID
     cursor = connection.cursor()
-    cursor.execute("select \"EGID\", lat, lon, \"GKODE\", \"GKODN\" from gwr where \"CompleteAddress\"=%s", (address, ))
+    cursor.execute("SELECT \"EGID\", lat, lon, \"GKODE\", \"GKODN\" FROM gwr WHERE \"CompleteAddress\"=%s", (address, ))
     result = cursor.fetchall()
 
     if len(result)==0:
@@ -67,7 +67,7 @@ def get_house_info(connection, address, angle=35, aspect=60):
     response_dict["coordinates"]["source"] = COORDINATES_SOURCE
 
     # search production plant info
-    cursor.execute("select \"TotalPower\", \"PlantType\", \"MountingPlace\", \"BeginningOfOperation\" from electricity_production where \"EGID\"=%s", (egid, ))
+    cursor.execute("SELECT \"TotalPower\", \"PlantType\", \"MountingPlace\", \"BeginningOfOperation\" FROM electricity_production WHERE \"EGID\"=%s", (egid, ))
     production = cursor.fetchall()
     for plant in production:
         mountingplace = plant[2]

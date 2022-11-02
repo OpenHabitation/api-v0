@@ -35,11 +35,16 @@ download_paths = {
     "heatingInfo_TABLE.csv": os.getenv('HEATING_INFO_TABLE_URL')
 }
 
-filenames = {"electricityProduction_TABLE.csv":"electricity_production", "gwr_TABLE.csv":"gwr", "heatingInfo_TABLE.csv":"heating_info"}
+filenames = {"electricityProduction_TABLE.csv":"electricity_production", "gwr_TABLE.csv":"gwr"}
 # filenames = {"heatingInfo_TABLE.csv":"heating_info"}
 
 
 for filename, table_name in filenames.items():
+
+    # check whether database exists already:
+    # if sqlalchemy.inspect(engine).has_table(table_name) == True:
+    #     print("Table %s already exists and is therefore skipped." %table_name)
+    #     continue
 
     print("Downloading '%s'..." %filename)
     chunks = pd.read_csv(download_paths[filename], index_col=0, chunksize=10000)

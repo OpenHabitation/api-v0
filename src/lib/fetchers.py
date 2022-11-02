@@ -62,6 +62,36 @@ def get_coordinates(connection, address):
 
 
 
+
+def get_gwr_data(connection, address) -> GWRInfo:
+
+
+	# query database
+	cursor = connection.cursor()
+	# TODO! adapt SQL query
+	cursor.execute("select \"EGID\", lat, lon, \"GKODE\", \"GKODN\" , \"GBAUJ\", \"GBAUP\", \"GEBF\", \"GAREA\", \"GASTW\" from gwr where \"CompleteAddress\"=%s", (address, ))
+	query_result = cursor.fetchall()
+
+	if len(query_result)==0:
+		raise NoDataFoundError("No data found for the given address.")
+
+	return GWRInfo(
+		query_result[0][0],
+		query_result[0][1],
+		query_result[0][2],
+		query_result[0][3],
+		query_result[0][4],
+		query_result[0][5],
+		query_result[0][6],
+		query_result[0][7],
+		query_result[0][8],
+		query_result[0][9],
+	)
+
+
+
+
+
 def get_electricity_production_info(connection, coordinates: Coordinates) -> List[PlantInfo]:
 	"""Gets electricity production info from local database
 	for the given address
