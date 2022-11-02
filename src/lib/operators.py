@@ -1,5 +1,5 @@
 from operator import truediv
-from typing import Union
+from typing import Union, List
 import lib.constants as constants
 from lib.types import *
 

@@ -67,7 +67,6 @@ def get_house_info(connection, address, angle, aspect):
 
 
   space_heating, domestic_hot_water = fetchers.get_heating_info(coordinates.EGID)
-  summary = get_summary(coordinates, el_production_info_extended, space_heating, domestic_hot_water)
 
   # TODO add error handling
 
@@ -83,7 +82,7 @@ def get_house_info(connection, address, angle, aspect):
       "source": COORDINATES_SOURCE,
     },
     "building_info": {
-      "energy_reference_area": {
+      "energy_reference_area_m2": {
         "value": operators.get_gebf_estimated(gwr_info),
         "source": "estimated based on data from Bundesamt für Statistik, Eidg. Gebäude- und Wohnungsregister GWR"
       },
@@ -134,12 +133,12 @@ def get_house_info(connection, address, angle, aspect):
     },
     "electricity_production": {
       "pv_requirement": {
-        "value": get_pv_requirement(gwr_info),
+        "value": operators.get_pv_requirement(gwr_info),
         "source": "EcoHabitas"
       },
       "electricity_production_system": {
-        "value": operators.electricity_production_exists(production_plants),
-        "source": ELECTRICITY_PRODUCTION_SOURCE if operators.electricity_production_exists(production_plants) == "existent" else None,
+        "value": operators.electricity_production_exists(el_production_info_extended),
+        "source": ELECTRICITY_PRODUCTION_SOURCE if operators.electricity_production_exists(el_production_info_extended) == "existent" else None,
       },
       "pv_index_1": {
         "value": operators.get_pv_index_1(gwr_info, el_production_info_extended),
@@ -150,7 +149,7 @@ def get_house_info(connection, address, angle, aspect):
         "source": "EcoHabitas"
       },
       "estimated_annual_electricity_production_kWh": {
-        "value": operators.get_total_electricity_production(production_plants),
+        "value": operators.get_total_electricity_production(el_production_info_extended),
         "source": ANNUAL_PRODUCTION_SOURCE,
       },
       "total_pv_power_kW": {
