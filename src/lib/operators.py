@@ -209,7 +209,7 @@ def get_heating_demand_index_1(gwr_info: GWRInfo, space_heating_demand: SpaceHea
 
 
 
-def get_heating_demand_index_1(gwr_info: GWRInfo, hot_water_demand: DomesticHotWaterDemand) -> Union[float, None]:
+def get_hot_water_demand_index_1(gwr_info: GWRInfo, hot_water_demand: DomesticHotWaterDemand) -> Union[float, None]:
   """
   Kennzahl 1: Warmwasserbedarf («domestic_hot_water_demand_kwh) dividiert durch
   «energy_reference_area_EBF_m2» bzw. «energy_reference_area_EBF_m2_estimated»

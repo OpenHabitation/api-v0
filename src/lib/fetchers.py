@@ -63,7 +63,7 @@ def get_coordinates(connection, address):
 
 
 
-def get_gwr_data(connection, address):
+def get_gwr_data(connection, address) -> GWRInfo:
 
 
 	# query database
@@ -87,7 +87,6 @@ def get_gwr_data(connection, address):
 		query_result[0][8],
 		query_result[0][9],
 	)
-
 
 
 
